@@ -1,10 +1,14 @@
 package task.model;
 
+import task.strategy.ITaskPriorityStrategy;
+
+import java.time.LocalDate;
+
 public class DigitalTask extends Task {
     private String accessLink;
 
-    public DigitalTask(String taskId, String description, String accessLink, String responsiblePerson) {
-        super(taskId, description, responsiblePerson);
+    public DigitalTask(String taskId, String description, String accessLink, String responsiblePerson, LocalDate deadline, int complexity, ITaskPriorityStrategy taskPriorityStrategy) {
+        super(taskId, description, responsiblePerson, deadline, complexity, taskPriorityStrategy);
         this.accessLink = accessLink;
     }
 
@@ -20,5 +24,15 @@ public class DigitalTask extends Task {
     public void printTaskDetails() {
         super.printTaskDetails();
         System.out.println("Link de acesso: " + accessLink); // Adiciona o link de acesso
+    }
+
+    @Override
+    protected int getWorkDayDuration() {
+        return 6;
+    }
+
+    @Override
+    protected int getWorkWeekDuration() {
+        return 5;
     }
 }

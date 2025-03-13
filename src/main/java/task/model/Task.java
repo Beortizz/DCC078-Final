@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
-public class Task extends Observable implements ITask {
+public abstract class Task extends Observable implements ITask {
     private String taskId;
     private String description;
     private String responsiblePerson;
@@ -134,13 +134,18 @@ public class Task extends Observable implements ITask {
         System.out.println("Progresso: " + progress + "%");
         System.out.println("Status: " + state.getState());
     }
-
     private void updateProgress() {
         if (subtasks.isEmpty()) {
             this.progress = 0.0;
         } else {
-            this.progress = (subtasks.size() / 10.0) * 100;
+            long completedSubtasks = subtasks.stream().filter(Subtask::isDone).count();
+            this.progress = (completedSubtasks / (double) subtasks.size()) * 100;
         }
+    }
+
+    public void completeSubtask(Subtask subtask) {
+        subtask.setDone(true);
+        updateProgress();
     }
 
     public double getProgress() {
@@ -169,5 +174,34 @@ public class Task extends Observable implements ITask {
 
     public void setTaskPriorityStrategy(ITaskPriorityStrategy taskPriorityStrategy) {
         this.taskPriorityStrategy = taskPriorityStrategy;
+    }
+
+    protected abstract int getWorkDayDuration();
+    protected abstract int getWorkWeekDuration();
+
+    public double calculateWorkDaysNeeded() {
+        int totalHours = 0;
+        for (Subtask subtask : subtasks) {
+            totalHours += subtask.getHoursNeeded();
+        }
+        return totalHours / (double) getWorkDayDuration();
+    }
+
+    public double calculateWorkWeeksNeeded() {
+        int totalHours = 0;
+        for (Subtask subtask : subtasks) {
+            totalHours += subtask.getHoursNeeded();
+        }
+        return totalHours / (double) (getWorkDayDuration() * getWorkWeekDuration());
+    }
+
+    public List<Double> calculateWorkTime() {
+        double weekDays = calculateWorkDaysNeeded();
+        double workWeeks = calculateWorkWeeksNeeded();
+        List<Double> workTime = new ArrayList<>();
+        workTime.add(weekDays);
+        workTime.add(workWeeks);
+
+        return workTime;
     }
 }
