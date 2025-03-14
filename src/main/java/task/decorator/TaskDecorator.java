@@ -14,14 +14,13 @@ public abstract class TaskDecorator implements ITask {
     public void addSubtask(Subtask subtask) {
         decoratedTask.addSubtask(subtask);
     }
-
-    @Override
-    public void removeSubtask(Subtask subtask) {
+    public @Override
+    void removeSubtask(Subtask subtask) {
         decoratedTask.removeSubtask(subtask);
     }
-
-    @Override
-    public void printTaskDetails() {
-        decoratedTask.printTaskDetails();
+    public @Override
+    int calculatePriority() {
+        return decoratedTask.calculatePriority();
     }
+
 }

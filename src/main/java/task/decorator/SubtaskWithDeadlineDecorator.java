@@ -23,9 +23,4 @@ public class SubtaskWithDeadlineDecorator extends SubtaskDecorator {
     public boolean isDeadlineApproaching() {
         return LocalDate.now().plusDays(2).isAfter(deadline);
     }
-
-    @Override
-    public String toString() {
-        return super.toString() + " [Prazo: " + deadline + "]";
-    }
 }

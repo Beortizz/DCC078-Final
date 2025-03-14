@@ -14,12 +14,11 @@ public class TaskNotificationManager implements Observer {
                     "Notificação: A tarefa '%s' (ID: %s) mudou para o estado '%s'. Responsável: %s.",
                     task.getDescription(), task.getTaskId(), task.getStateName(), task.getResponsiblePerson()
             );
-            System.out.println(mensagem);
+
             gerarLog(mensagem);
         }
     }
-    private void gerarLog(String mensagem) {
-        // Simulação de geração de log
-        System.out.println("Log gerado: " + mensagem);
+    private String gerarLog(String mensagem) {
+        return "Log gerado: " + mensagem;
     }
 }

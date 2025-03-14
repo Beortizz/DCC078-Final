@@ -1,4 +1,5 @@
 package task.model;
+import task.memento.SubtaskMemento;
 
 public class Subtask implements ISubtask {
     private String name;
@@ -19,11 +20,6 @@ public class Subtask implements ISubtask {
 
     public String getDescription() {
         return description;
-    }
-
-    @Override
-    public String toString() {
-        return name + " (Descrição: " + description + ")";
     }
 
     public void setName(String name) {
@@ -51,5 +47,15 @@ public class Subtask implements ISubtask {
 
     public void setDone(boolean b) {
         this.done = b;
+    }
+    public SubtaskMemento saveToMemento() {
+        return new SubtaskMemento(name, description, hoursNeeded, done);
+    }
+
+    public void restoreFromMemento(SubtaskMemento memento) {
+        this.name = memento.getName();
+        this.description = memento.getDescription();
+        this.hoursNeeded = memento.getHoursNeeded();
+        this.done = memento.isDone();
     }
 }

@@ -1,5 +1,7 @@
 package task.model;
 
+import task.memento.SubtaskMemento;
+import task.memento.TaskMemento;
 import task.state.TaskState;
 import task.state.TaskNewState;
 import task.strategy.ITaskPriorityStrategy;
@@ -16,10 +18,15 @@ public abstract class Task extends Observable implements ITask {
     private List<Subtask> subtasks;
     private double progress; // Porcentagem concluída da tarefa
     private TaskState state;
+
+    public ITaskPriorityStrategy getTaskPriorityStrategy() {
+        return taskPriorityStrategy;
+    }
+
     private ITaskPriorityStrategy taskPriorityStrategy;
     private LocalDate deadline;
-
     private int complexity;
+    private boolean approved;
 
     public Task(String taskId, String description, String responsiblePerson, LocalDate deadline, int complexity, ITaskPriorityStrategy taskPriorityStrategy) {
         this.setTaskId(taskId);
@@ -31,6 +38,15 @@ public abstract class Task extends Observable implements ITask {
         this.setDeadline(deadline);
         this.setComplexity(complexity);
         this.setTaskPriorityStrategy(taskPriorityStrategy);
+        this.setApproved(false);
+    }
+
+    public boolean isApproved() {
+        return approved;
+    }
+
+    public void setApproved(boolean approved) {
+        this.approved = approved;
     }
 
     @Override
@@ -123,17 +139,6 @@ public abstract class Task extends Observable implements ITask {
                 .sum();
     }
 
-    @Override
-    public void printTaskDetails() {
-        System.out.println("Tarefa ID: " + taskId);
-        System.out.println("Descrição: " + description);
-        System.out.println("Subtarefas:");
-        for (Subtask subtask : subtasks) {
-            System.out.println("- " + subtask);
-        }
-        System.out.println("Progresso: " + progress + "%");
-        System.out.println("Status: " + state.getState());
-    }
     private void updateProgress() {
         if (subtasks.isEmpty()) {
             this.progress = 0.0;
@@ -203,5 +208,44 @@ public abstract class Task extends Observable implements ITask {
         workTime.add(workWeeks);
 
         return workTime;
+    }
+
+    public int getTotalHours() {
+        return subtasks.stream()
+                .mapToInt(Subtask::getHoursNeeded)
+                .sum();
+    }
+
+    public boolean isDone() {
+        return subtasks.stream().allMatch(Subtask::isDone);
+    }
+
+    public TaskMemento saveToMemento() {
+        return new TaskMemento(
+                taskId, description, responsiblePerson, progress, state,
+                taskPriorityStrategy, deadline, complexity, approved, subtasks
+        );
+    }
+    public void restoreFromMemento(TaskMemento memento) {
+        this.taskId = memento.getTaskId();
+        this.description = memento.getDescription();
+        this.responsiblePerson = memento.getResponsiblePerson();
+        this.progress = memento.getProgress();
+        this.state = memento.getState();
+        this.taskPriorityStrategy = memento.getTaskPriorityStrategy();
+        this.deadline = memento.getDeadline();
+        this.complexity = memento.getComplexity();
+        this.approved = memento.isApproved();
+        this.subtasks = covertMementoToSubtask(memento.getSubtasks());
+    }
+
+    private List<Subtask> covertMementoToSubtask(List<SubtaskMemento> subtaskMementos){
+        List<Subtask> subtasks = new ArrayList<>();
+        for(SubtaskMemento subtaskMemento : subtaskMementos){
+            Subtask subtask = new Subtask(subtaskMemento.getName(), subtaskMemento.getDescription(), subtaskMemento.getHoursNeeded());
+            subtask.restoreFromMemento(subtaskMemento);
+            subtasks.add(subtask);
+        }
+        return subtasks;
     }
 }

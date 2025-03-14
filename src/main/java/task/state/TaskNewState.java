@@ -29,4 +29,8 @@ public class TaskNewState extends TaskState {
         task.setState(TaskToDoState.getInstance());
         return true;
     }
+    @Override
+    public String toString() {
+        return "Nova";
+    }
 }
